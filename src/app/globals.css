@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #ffffff;
+  color: #111111;
+}
+
+.hero {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  padding: 60px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.75),
+      rgba(0, 0, 0, 0.1)
+    ),
+    url("/banners/hero.jpg") center/cover;
+  color: white;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+.hero-content h1 {
+  font-size: clamp(48px, 8vw, 100px);
+  line-height: 1;
+  margin: 20px 0;
+}
+
+.hero-content p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.shop-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 16px 35px;
+  background: white;
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.shop-button:hover {
+  background: #dddddd;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 25px;
+    min-height: 75vh;
+  }
 }
