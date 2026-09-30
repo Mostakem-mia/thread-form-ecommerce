@@ -83,6 +83,24 @@ export default function Home() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
   const [deliveryArea, setDeliveryArea] = useState("inside");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+
+
+  
+  const filteredProducts = products.filter((product) => {
+    const query = searchQuery.toLowerCase().trim();
+
+    if (!query) return true;
+
+    const nameMatch = product.name.toLowerCase().includes(query);
+    const categoryMatch =
+      product.category.toLowerCase().startsWith(query);
+    return nameMatch || categoryMatch;
+  });
+
+
+
 
   const cartCount = cartItems.length;
 
@@ -165,9 +183,31 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-5 text-sm">
-            <button aria-label="Search">⌕</button>
+            <div className="relative flex items-center">
+              <button
+                aria-label="Search"
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="text-lg"
+              >
+                ⌕
+              </button>
+
+              {searchOpen && (
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  className="ml-2 w-28 border-b border-neutral-300 bg-transparent py-1 text-xs outline-none focus:border-black"
+                />
+              )}
+            </div>
+
             <button aria-label="Account">♙</button>
-            <Link href="/cart">Cart ({cartItems.reduce((total, item) => total + item.quantity, 0)})</Link>
+            <Link href="/cart">
+              Cart ({cartItems.reduce((total, item) => total + item.quantity, 0)})
+            </Link>
           </div>
         </nav>
       </header>
@@ -283,8 +323,16 @@ export default function Home() {
             </a>
           </div>
 
+          {searchQuery && filteredProducts.length === 0 && (
+            <div className="col-span-full py-16 text-center">
+              <p className="text-sm text-neutral-500">
+                No products found for "{searchQuery}"
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <article key={product.name} className="group">
                 <Link href={`/product/${product.id}`}>
                   <div className="relative aspect-[3/4] overflow-hidden bg-neutral-200 cursor-pointer">
