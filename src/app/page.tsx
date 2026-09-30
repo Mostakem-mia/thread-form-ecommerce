@@ -236,7 +236,7 @@ export default function Home() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <a href="#featured" className="group relative h-[400px] overflow-hidden bg-neutral-200">
+          <Link href="/women" className="group relative h-[400px] overflow-hidden bg-neutral-200">
             <img
               src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1000"
               alt="Women's fashion"
@@ -248,9 +248,9 @@ export default function Home() {
                 <h3 className="mt-2 text-3xl font-semibold">Women</h3>
               </div>
             </div>
-          </a>
+          </Link>
 
-          <a href="#featured" className="group relative h-[400px] overflow-hidden bg-neutral-200">
+          <Link href="/men" className="group relative h-[400px] overflow-hidden bg-neutral-200">
             <img
               src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=1000"
               alt="Men's fashion"
@@ -262,7 +262,7 @@ export default function Home() {
                 <h3 className="mt-2 text-3xl font-semibold">Men</h3>
               </div>
             </div>
-          </a>
+          </Link>
         </div>
       </section>
 
