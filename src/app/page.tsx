@@ -1,76 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { products } from "../data/products";
+import Navbar from "../components/navbar";
 
-const products = [
-  {
-    id: "1",
-    name: "Classic Linen Shirt",
-    category: "MEN",
-    price: 1850,
-    image:
-      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=700",
-  },
-  {
-    id: "2",
-    name: "Minimal White Shirt",
-    category: "MEN",
-    price: 1650,
-    image:
-      "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=700",
-  },
-  {
-    id: "3",
-    name: "Elegant Summer Dress",
-    category: "WOMEN",
-    price: 2450,
-    image:
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=700",
-  },
-  {
-    id: "4",
-    name: "Classic Denim",
-    category: "MEN",
-    price: 2100,
-    image:
-      "https://images.unsplash.com/photo-1542272604-787c3835535d?w=700",
-  },
-
-
-  {
-    id: "5",
-    name: "Classic Linen Shirt 2",
-    category: "MEN",
-    price: 1850,
-    image:
-      "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=700",
-  },
-  {
-    id: "6",
-    name: "Minimal White Shirt 2",
-    category: "MEN",
-    price: 1650,
-    image:
-      "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=700",
-  },
-  {
-    id: "7",
-    name: "Elegant Summer Dress 2",
-    category: "WOMEN",
-    price: 2450,
-    image:
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=700",
-  },
-  {
-    id: "8",
-    name: "Classic Denim 2",
-    category: "MEN",
-    price: 2100,
-    image:
-      "https://images.unsplash.com/photo-1542272604-787c3835535d?w=700",
-  },
-];
 
 
 export default function Home() {
@@ -85,21 +19,28 @@ export default function Home() {
   const [deliveryArea, setDeliveryArea] = useState("inside");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
 
-  
-  const filteredProducts = products.filter((product) => {
+
+  const featuredProducts = products.filter(
+    (product) => product.featured
+  );
+
+  const searchResults = products.filter((product) => {
     const query = searchQuery.toLowerCase().trim();
 
-    if (!query) return true;
+    if (!query) return [];
 
-    const nameMatch = product.name.toLowerCase().includes(query);
-    const categoryMatch =
-      product.category.toLowerCase().startsWith(query);
-    return nameMatch || categoryMatch;
+    return (
+      product.name.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    );
   });
-
-
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
 
 
   const cartCount = cartItems.length;
@@ -145,6 +86,24 @@ export default function Home() {
   const grandTotal = total + deliveryCharge;
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+  
+    document.addEventListener("mousedown", handleClickOutside);
+  
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     const savedCart = localStorage.getItem("cartItems");
 
     if (savedCart) {
@@ -163,54 +122,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-neutral-900">
 
-      {/* Announcement Bar */}
-      <div className="bg-black px-4 py-2 text-center text-xs tracking-widest text-white">
-        FREE DELIVERY ON ORDERS OVER ৳5,000
-      </div>
-
-      {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <button className="text-xl font-bold tracking-[0.2em]">
-            THREAD<span className="font-light">&</span>FORM
-          </button>
-
-          <div className="hidden items-center gap-8 text-sm md:flex">
-            <a href="#" className="hover:text-neutral-500">Home</a>
-            <a href="#collection" className="hover:text-neutral-500">Shop</a>
-            <a href="#featured" className="hover:text-neutral-500">New Arrivals</a>
-            <a href="#about" className="hover:text-neutral-500">About</a>
-          </div>
-
-          <div className="flex items-center gap-5 text-sm">
-            <div className="relative flex items-center">
-              <button
-                aria-label="Search"
-                onClick={() => setSearchOpen(!searchOpen)}
-                className="text-lg"
-              >
-                ⌕
-              </button>
-
-              {searchOpen && (
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                  className="ml-2 w-28 border-b border-neutral-300 bg-transparent py-1 text-xs outline-none focus:border-black"
-                />
-              )}
-            </div>
-
-            <button aria-label="Account">♙</button>
-            <Link href="/cart">
-              Cart ({cartItems.reduce((total, item) => total + item.quantity, 0)})
-            </Link>
-          </div>
-        </nav>
-      </header>
+<Navbar />
 
       {/* Hero Section */}
       <section className="relative flex min-h-[600px] items-center bg-neutral-900">
@@ -315,7 +227,7 @@ export default function Home() {
                 OUR SELECTION
               </p>
               <h2 className="mt-3 text-3xl font-light md:text-4xl">
-                Featured Products
+                New Arrivals
               </h2>
             </div>
             <a href="#featured" className="text-xs font-semibold tracking-widest underline underline-offset-4">
@@ -323,16 +235,10 @@ export default function Home() {
             </a>
           </div>
 
-          {searchQuery && filteredProducts.length === 0 && (
-            <div className="col-span-full py-16 text-center">
-              <p className="text-sm text-neutral-500">
-                No products found for "{searchQuery}"
-              </p>
-            </div>
-          )}
+
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {filteredProducts.map((product) => (
+            {featuredProducts.map((product) => (
               <article key={product.name} className="group">
                 <Link href={`/product/${product.id}`}>
                   <div className="relative aspect-[3/4] overflow-hidden bg-neutral-200 cursor-pointer">

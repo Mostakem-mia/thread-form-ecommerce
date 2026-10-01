@@ -1,95 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { products } from "../../data/products";
+import Navbar from "../../components/navbar";
 
-const products = [
-    {
-        id: 1,
-        name: "Classic Linen Shirt",
-        category: "MEN",
-        price: 1850,
-        image:
-            "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=700",
-    },
-    {
-        id: 2,
-        name: "Minimal White Shirt",
-        category: "MEN",
-        price: 1650,
-        image:
-            "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=700",
-    },
-    {
-        id: 4,
-        name: "Classic Denim",
-        category: "MEN",
-        price: 2100,
-        image:
-            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=700",
-    },
-    {
-        id: 5,
-        name: "Classic Linen Shirt 2",
-        category: "MEN",
-        price: 1850,
-        image:
-            "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=700",
-    },
-    {
-        id: 6,
-        name: "Minimal White Shirt 2",
-        category: "MEN",
-        price: 1650,
-        image:
-            "https://images.unsplash.com/photo-1603252110481-7ba873bf42ab?w=700",
-    },
-    {
-        id: 8,
-        name: "Classic Denim 2",
-        category: "MEN",
-        price: 2100,
-        image:
-            "https://images.unsplash.com/photo-1542272604-787c3835535d?w=700",
-    },
-];
+const menProducts = products.filter(
+    (product) => product.category === "MEN"
+);
 
 export default function MenPage() {
     return (
         <main className="min-h-screen bg-white text-black">
             {/* Navbar */}
-            <nav className="border-b border-black/10">
-                <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-                    <Link href="/" className="text-xl font-semibold tracking-[0.2em]">
-                        THREAD&FORM
-                    </Link>
-
-                    <div className="hidden items-center gap-8 text-sm md:flex">
-                        <Link href="/" className="hover:opacity-60">
-                            Home
-                        </Link>
-
-                        <Link href="/men" className="font-medium underline underline-offset-4">
-                            Men
-                        </Link>
-
-                        <Link href="/women" className="hover:opacity-60">
-                            Women
-                        </Link>
-
-                        <Link href="/#featured" className="hover:opacity-60">
-                            New Arrivals
-                        </Link>
-
-                        <Link href="/#about" className="hover:opacity-60">
-                            About
-                        </Link>
-                    </div>
-
-                    <Link href="/cart" className="text-sm hover:opacity-60">
-                        Cart
-                    </Link>
-                </div>
-            </nav>
+            <Navbar />
 
             {/* Header */}
             <section className="mx-auto max-w-7xl px-6 pb-12 pt-16">
@@ -111,19 +34,17 @@ export default function MenPage() {
             <section className="mx-auto max-w-7xl px-6 pb-24">
                 <div className="mb-8 flex items-center justify-between border-b border-black/10 pb-5">
                     <p className="text-sm text-black/60">
-                        {products.length} Products
+                    {menProducts.length} Products
                     </p>
 
-                    <Link
-                        href="/women"
-                        className="text-sm underline underline-offset-4 hover:opacity-60"
-                    >
-                        View Women
-                    </Link>
+                    <div className="flex gap-5 text-sm">
+                        <Link href="/women" className="text-sm underline underline-offset-4 hover:opacity-60">Women</Link>
+                        <Link href="/shop" className="text-sm underline underline-offset-4 hover:opacity-60">All</Link>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-                    {products.map((product) => (
+                {menProducts.map((product) => (
                         <div key={product.id} className="group">
                             {/* Product Image */}
                             <Link href={`/product/${product.id}`}>
