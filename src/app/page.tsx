@@ -169,7 +169,7 @@ export default function Home() {
         <div>
           <p className="text-2xl">♧</p>
           <h3 className="mt-2 text-sm font-semibold">Free Delivery</h3>
-          <p className="mt-1 text-xs text-neutral-500">On orders over ৳3,000</p>
+          <p className="mt-1 text-xs text-neutral-500">On orders over ৳5,000</p>
         </div>
         <div>
           <p className="text-2xl">↺</p>

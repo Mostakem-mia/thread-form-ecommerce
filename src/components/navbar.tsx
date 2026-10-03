@@ -1,13 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { products } from "../data/products";
+
 
 export default function Navbar() {
     const pathname = usePathname();
     const [hash, setHash] = useState("");
     const [cartCount, setCartCount] = useState(0);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    const searchResults = products.filter((product) => {
+        const query = searchQuery.toLowerCase().trim();
+        if (!query) return [];
+        return (
+            product.name.toLowerCase().includes(query) ||
+            product.category.toLowerCase().includes(query)
+        );
+    });
+
+
 
     useEffect(() => {
         const updateHash = () => {
@@ -20,6 +36,24 @@ export default function Navbar() {
 
         return () => {
             window.removeEventListener("hashchange", updateHash);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                searchRef.current &&
+                !searchRef.current.contains(event.target as Node)
+            ) {
+                setSearchOpen(false);
+                setSearchQuery("");
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
 
@@ -134,10 +168,77 @@ export default function Navbar() {
 
                     {/* Right Side */}
                     <div className="flex items-center gap-5 text-sm">
-                        <button aria-label="Search">⌕</button>
+                        {/* Search */}
+                        <div ref={searchRef} className="relative">
+                            <button
+                                aria-label="Search"
+                                onClick={() => {
+                                    setSearchOpen((prev) => !prev);
+                                    setSearchQuery("");
+                                }}
+                            >
+                                ⌕
+                            </button>
 
+                            {searchOpen && (
+                                <div className="absolute right-0 top-10 z-50 w-80 border border-neutral-200 bg-white p-4 shadow-lg">
+                                    <input
+                                        type="text"
+                                        autoFocus
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Search products..."
+                                        className="w-full border-b border-neutral-300 pb-2 text-sm outline-none"
+                                    />
+
+                                    {searchQuery.trim() && (
+                                        <div className="mt-3 max-h-80 overflow-y-auto">
+                                            {searchResults.length > 0 ? (
+                                                searchResults.map((product) => (
+                                                    <Link
+                                                        key={product.id}
+                                                        href={`/product/${product.id}`}
+                                                        onClick={() => {
+                                                            setSearchOpen(false);
+                                                            setSearchQuery("");
+                                                        }}
+                                                        className="flex items-center justify-between gap-4 border-b border-neutral-100 py-3 hover:bg-neutral-50"
+                                                    >
+                                                        {/* Product Info */}
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className="truncate text-sm">
+                                                                {product.name}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-neutral-500">
+                                                                {product.category} · ৳
+                                                                {product.price.toLocaleString()}
+                                                            </p>
+                                                        </div>
+
+                                                        {/* Product Image */}
+                                                        <img
+                                                            src={product.image}
+                                                            alt={product.name}
+                                                            className="h-16 w-14 shrink-0 object-cover"
+                                                        />
+                                                    </Link>
+                                                ))
+                                            ) : (
+                                                <p className="py-4 text-sm text-neutral-500">
+                                                    No products found.
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Account */}
                         <button aria-label="Account">♙</button>
 
+                        {/* Cart */}
                         <Link href="/cart">
                             Cart ({cartCount})
                         </Link>

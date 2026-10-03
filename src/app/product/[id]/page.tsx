@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { products } from "../../../data/products";
-
+import Navbar from "../../../components/navbar";
 
 
 export default function ProductDetails() {
@@ -25,6 +25,7 @@ export default function ProductDetails() {
             </main>
         );
     }
+    
 
     const handleAddToCart = () => {
         if (!selectedSize || !selectedColor) {
@@ -64,14 +65,9 @@ export default function ProductDetails() {
 
     return (
         <main className="min-h-screen bg-white text-gray-900">
+            <Navbar />
+    
             <div className="mx-auto max-w-7xl px-6 py-12">
-                <Link
-                    href="/"
-                    className="mb-8 inline-block text-sm text-gray-500 hover:text-black"
-                >
-                    ← Back to Shop
-                </Link>
-
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
                     {/* Product Image */}
                     <div className="bg-gray-100">
