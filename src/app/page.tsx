@@ -439,38 +439,6 @@ export default function Home() {
         </form>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-black px-6 py-12 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row">
-          <div>
-            <h2 className="text-xl font-bold tracking-[0.2em]">
-              THREAD<span className="font-light">&</span>FORM
-            </h2>
-            <p className="mt-3 text-xs text-neutral-400">
-              Timeless style. Everyday comfort.
-            </p>
-          </div>
-
-          <div className="flex gap-12 text-xs text-neutral-300">
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white">HELP</h3>
-              <p>Contact Us</p>
-              <p>Shipping</p>
-              <p>Returns</p>
-            </div>
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white">FOLLOW US</h3>
-              <p>Instagram</p>
-              <p>Facebook</p>
-              <p>TikTok</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-10 max-w-7xl border-t border-neutral-800 pt-5 text-xs text-neutral-500">
-          © 2026 THREAD & FORM. All rights reserved.
-        </div>
-      </footer>
     </main>
   );
 }

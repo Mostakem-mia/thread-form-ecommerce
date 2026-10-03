@@ -85,14 +85,7 @@ export default function WomenPage() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="border-t border-black/10">
-                <div className="mx-auto max-w-7xl px-6 py-10">
-                    <p className="text-xs tracking-[0.2em] text-black/50">
-                        © 2026 THREAD&FORM
-                    </p>
-                </div>
-            </footer>
+           
         </main>
     );
 }
