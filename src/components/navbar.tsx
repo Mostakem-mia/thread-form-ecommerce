@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { products } from "../data/products";
+import { menCategories, womenCategories } from "../data/categories";
 
 
 export default function Navbar() {
@@ -12,7 +13,22 @@ export default function Navbar() {
     const [cartCount, setCartCount] = useState(0);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [menMenuOpen, setMenMenuOpen] = useState(false);
+    const [womenMenuOpen, setWomenMenuOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
+
+
+    const menNewArrivals = products.filter(
+        (product) =>
+            product.gender === "MEN" &&
+            product.featured
+    );
+
+    const womenNewArrivals = products.filter(
+        (product) =>
+            product.gender === "WOMEN" &&
+            product.featured
+    );
 
     const searchResults = products.filter((product) => {
         const query = searchQuery.toLowerCase().trim();
@@ -121,27 +137,230 @@ export default function Navbar() {
                             Shop
                         </Link>
 
-                        <Link
-                            href="/men"
-                            className={
-                                pathname === "/men"
-                                    ? "font-medium underline underline-offset-4"
-                                    : "hover:text-neutral-500"
-                            }
-                        >
-                            Men
-                        </Link>
+                        <div className="relative" onMouseEnter={() => setMenMenuOpen(true)} onMouseLeave={() => setMenMenuOpen(false)}>
+                            <Link
+                                href="/men"
+                                className={
+                                    pathname === "/men"
+                                        ? "font-medium underline underline-offset-4"
+                                        : "hover:text-neutral-500"
+                                }
+                            >
+                                Men
+                            </Link>
 
-                        <Link
-                            href="/women"
-                            className={
-                                pathname === "/women"
-                                    ? "font-medium underline underline-offset-4"
-                                    : "hover:text-neutral-500"
-                            }
+                            <div
+                                className={`absolute left-1/2 top-full z-50 w-[1050px] -translate-x-1/2 border-t border-neutral-200 bg-white shadow-lg transition-all duration-200 ${menMenuOpen
+                                    ? "visible opacity-100"
+                                    : "invisible opacity-0"
+                                    }`} >
+                                <div className="grid grid-cols-4 gap-0 px-8 py-7">
+
+                                    {/* TOPWEAR */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            TOPWEAR
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {menCategories.TOPWEAR.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/men?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setMenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50">
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* BOTTOMWEAR */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            BOTTOMWEAR
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {menCategories.BOTTOMWEAR.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/men?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setMenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* ACCESSORIES */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            ACCESSORIES
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {menCategories.ACCESSORIES.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/men?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setMenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* NEW ARRIVALS */}
+                                    <div className="border-l border-neutral-200 pl-7">
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            NEW ARRIVALS
+                                        </p>
+
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                                            {menNewArrivals.slice(0, 4).map((product) => (
+                                                <Link
+                                                    key={product.id}
+                                                    href={`/product/${product.id}`}
+                                                    onClick={() => setMenMenuOpen(false)}
+                                                    className="group/product">
+                                                    <div className="aspect-[4/5] overflow-hidden bg-gray-100">
+                                                        <img
+                                                            src={product.image}
+                                                            alt={product.name}
+                                                            className="h-full w-full object-cover transition duration-500 group-hover/product:scale-105"
+                                                        />
+                                                    </div>
+
+                                                    <p className="mt-2 truncate text-xs text-black/80">
+                                                        {product.name}
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-black/50">
+                                                        ৳{product.price.toLocaleString()}
+                                                    </p>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="border-t border-neutral-200 px-8 py-5">
+                                        <Link
+                                            href="/men"
+                                            onClick={() => setMenMenuOpen(false)}
+                                            className="text-xs font-medium text-red-500 hover:opacity-60">
+                                            View All Men →
+                                        </Link>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="relative"
+                            onMouseEnter={() => setWomenMenuOpen(true)}
+                            onMouseLeave={() => setWomenMenuOpen(false)}
                         >
-                            Women
-                        </Link>
+                            <Link
+                                href="/women"
+                                className={
+                                    pathname === "/women"
+                                        ? "font-medium underline underline-offset-4"
+                                        : "hover:text-neutral-500"
+                                }
+                            >
+                                Women
+                            </Link>
+
+                            {/* Women Mega Menu */}
+                            <div
+                                className={`absolute left-1/2 top-full z-50 w-[1050px] -translate-x-1/2 border-t border-neutral-200 bg-white shadow-lg transition-all duration-200 ${womenMenuOpen
+                                        ? "visible opacity-100"
+                                        : "invisible opacity-0"
+                                    }`}
+                            >
+                                {/* Main Content */}
+                                <div className="grid grid-cols-[190px_1fr] gap-0 px-8 py-7">
+
+                                    {/* WESTERN & ETHNIC */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium tracking-[0.2em] text-red-500">
+                                            WESTERN & ETHNIC
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {womenCategories["WESTERN & ETHNIC"].map(
+                                                (category) => (
+                                                    <Link
+                                                        key={category}
+                                                        href={`/women?category=${encodeURIComponent(category)}`}
+                                                        onClick={() =>
+                                                            setWomenMenuOpen(false)
+                                                        }
+                                                        className="block text-sm hover:text-black/50"
+                                                    >
+                                                        {category}
+                                                    </Link>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* NEW ARRIVALS */}
+                                    <div className="border-l border-neutral-200 pl-7">
+                                        <p className="mb-4 text-xs font-medium tracking-[0.2em] text-red-500">
+                                            NEW ARRIVALS
+                                        </p>
+
+                                        <div className="grid grid-cols-3 gap-x-5 gap-y-5">
+                                            {womenNewArrivals.slice(0, 6).map(
+                                                (product) => (
+                                                    <Link
+                                                        key={product.id}
+                                                        href={`/product/${product.id}`}
+                                                        onClick={() =>
+                                                            setWomenMenuOpen(false)
+                                                        }
+                                                        className="group/product"
+                                                    >
+                                                        <div className="aspect-[4/5] overflow-hidden bg-gray-100">
+                                                            <img
+                                                                src={product.image}
+                                                                alt={product.name}
+                                                                className="h-full w-full object-cover transition duration-500 group-hover/product:scale-105"
+                                                            />
+                                                        </div>
+
+                                                        <p className="mt-2 truncate text-xs text-black/80">
+                                                            {product.name}
+                                                        </p>
+
+                                                        <p className="mt-1 text-xs text-black/50">
+                                                            ৳{product.price.toLocaleString()}
+                                                        </p>
+                                                    </Link>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* View All Women */}
+                                <div className="border-t border-neutral-200 px-8 py-5">
+                                    <Link
+                                        href="/women"
+                                        onClick={() => setWomenMenuOpen(false)}
+                                        className="text-xs font-medium text-red-500 hover:opacity-60"
+                                    >
+                                        View All Women →
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
                         <a
                             href="/#featured"
                             className={

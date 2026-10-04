@@ -1,14 +1,26 @@
 "use client";
 
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { products } from "../../data/products";
 import Navbar from "../../components/navbar";
 
-const menProducts = products.filter(
-    (product) => product.category === "MEN"
-);
+
+
 
 export default function MenPage() {
+    const searchParams = useSearchParams();
+    const selectedCategory = searchParams.get("category");
+
+    const menProducts = products.filter((product) => {
+        if (product.gender !== "MEN") return false;
+
+        if (!selectedCategory) return true;
+
+        return product.subcategory === selectedCategory;
+    });
+
     return (
         <main className="min-h-screen bg-white text-black">
             {/* Navbar */}
@@ -34,17 +46,30 @@ export default function MenPage() {
             <section className="mx-auto max-w-7xl px-6 pb-24">
                 <div className="mb-8 flex items-center justify-between border-b border-black/10 pb-5">
                     <p className="text-sm text-black/60">
-                    {menProducts.length} Products
+                        {menProducts.length} Products
                     </p>
 
-                    <div className="flex gap-5 text-sm">
-                        <Link href="/women" className="text-sm underline underline-offset-4 hover:opacity-60">Women</Link>
-                        <Link href="/shop" className="text-sm underline underline-offset-4 hover:opacity-60">All</Link>
+                    <div className="flex items-center gap-5 text-sm">
+                        
+
+                        <Link
+                            href="/women"
+                            className="underline underline-offset-4 hover:opacity-60"
+                        >
+                            Women
+                        </Link>
+
+                        <Link
+                            href="/shop"
+                            className="underline underline-offset-4 hover:opacity-60"
+                        >
+                            All
+                        </Link>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-                {menProducts.map((product) => (
+                    {menProducts.map((product) => (
                         <div key={product.id} className="group">
                             {/* Product Image */}
                             <Link href={`/product/${product.id}`}>
@@ -85,7 +110,7 @@ export default function MenPage() {
                 </div>
             </section>
 
-            
+
         </main>
     );
 }

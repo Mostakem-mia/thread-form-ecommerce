@@ -1,14 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { products } from "../../data/products";
 import Navbar from "../../components/navbar";
 
-const womenProducts = products.filter(
-    (product) => product.category === "WOMEN"
-);
+
 
 export default function WomenPage() {
+    const searchParams = useSearchParams();
+    const selectedCategory = searchParams.get("category");
+
+    const womenProducts = products.filter((product) => {
+        if (product.gender !== "WOMEN") return false;
+
+        if (!selectedCategory) return true;
+
+        return product.subcategory === selectedCategory;
+    });
     return (
         <main className="min-h-screen bg-white text-black">
             {/* Navbar */}
@@ -34,7 +43,7 @@ export default function WomenPage() {
             <section className="mx-auto max-w-7xl px-6 pb-24">
                 <div className="mb-8 flex items-center justify-between border-b border-black/10 pb-5">
                     <p className="text-sm text-black/60">
-                    {womenProducts.length} Products
+                        {womenProducts.length} Products
                     </p>
 
                     <div className="flex gap-5 text-sm">
@@ -44,7 +53,7 @@ export default function WomenPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-                {womenProducts.map((product) => (
+                    {womenProducts.map((product) => (
                         <div key={product.id} className="group">
                             {/* Product Image */}
                             <Link href={`/product/${product.id}`}>
@@ -85,7 +94,7 @@ export default function WomenPage() {
                 </div>
             </section>
 
-           
+
         </main>
     );
 }

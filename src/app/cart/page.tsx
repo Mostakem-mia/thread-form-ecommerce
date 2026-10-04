@@ -266,7 +266,7 @@ export default function CartPage() {
                             </p>
 
                             <h2 className="text-2xl font-light tracking-wide md:text-3xl">
-                                You Might Also Like
+                                You Might Also Love
                             </h2>
                         </div>
 
