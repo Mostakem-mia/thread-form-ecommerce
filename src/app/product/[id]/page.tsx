@@ -118,6 +118,8 @@ export default function ProductDetails() {
 
         localStorage.setItem("cartItems", JSON.stringify(cartItems));
 
+        window.dispatchEvent(new Event("cartUpdated"));
+
         setAdded(true);
     };
 
@@ -248,7 +250,7 @@ export default function ProductDetails() {
             </div>
             {/* You Might Also Like */}
             {relatedProducts.length > 0 && (
-                <section className="mx-auto mt-24 max-w-7xl border-t border-gray-200 px-6 pt-16">
+                <section className="mx-auto mt-24 max-w-7xl border-t border-gray-200 px-6 pt-16 pb-24">
                     {/* Section Header */}
                     <div className="mb-8 flex items-end justify-between">
                         <div>
@@ -281,8 +283,8 @@ export default function ProductDetails() {
                         {/* Products */}
                         <div
                             className={`flex -mx-2 ${isTransitioning
-                                    ? "transition-transform duration-700 ease-in-out"
-                                    : ""
+                                ? "transition-transform duration-700 ease-in-out"
+                                : ""
                                 }`}
                             style={{
                                 transform: `translateX(-${relatedStart * (100 / itemsPerView)

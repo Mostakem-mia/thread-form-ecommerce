@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
     const [email, setEmail] = useState("");
@@ -132,12 +133,9 @@ export default function Footer() {
                         </a>
 
                         {/* Connect to My Orders later */}
-                        <a
-                            href="#"
-                            className="block transition hover:text-white"
-                        >
+                        <Link href="/my-orders" className="block transition hover:text-white">
                             My Orders
-                        </a>
+                        </Link>
 
                         {/* Connect to Wishlist later */}
                         <a

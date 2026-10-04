@@ -10,7 +10,7 @@ import { menCategories, womenCategories } from "../data/categories";
 export default function Navbar() {
     const pathname = usePathname();
     const [hash, setHash] = useState("");
-    const [cartCount, setCartCount] = useState(0);
+    const [cartCount, setCartCount] = useState<number | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [menMenuOpen, setMenMenuOpen] = useState(false);
@@ -95,9 +95,11 @@ export default function Navbar() {
         updateCartCount();
 
         window.addEventListener("storage", updateCartCount);
+        window.addEventListener("cartUpdated", updateCartCount);
 
         return () => {
             window.removeEventListener("storage", updateCartCount);
+            window.removeEventListener("cartUpdated", updateCartCount);
         };
     }, []);
 
@@ -279,8 +281,8 @@ export default function Navbar() {
                             {/* Women Mega Menu */}
                             <div
                                 className={`absolute left-1/2 top-full z-50 w-[1050px] -translate-x-1/2 border-t border-neutral-200 bg-white shadow-lg transition-all duration-200 ${womenMenuOpen
-                                        ? "visible opacity-100"
-                                        : "invisible opacity-0"
+                                    ? "visible opacity-100"
+                                    : "invisible opacity-0"
                                     }`}
                             >
                                 {/* Main Content */}
@@ -459,7 +461,7 @@ export default function Navbar() {
 
                         {/* Cart */}
                         <Link href="/cart">
-                            Cart ({cartCount})
+                            Bag {cartCount !== null ? `(${cartCount})` : ""}
                         </Link>
                     </div>
                 </nav>

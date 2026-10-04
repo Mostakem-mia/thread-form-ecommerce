@@ -47,6 +47,7 @@ export default function Home() {
 
   const addToCart = (product: (typeof products)[number]) => {
     const savedCart = localStorage.getItem("cartItems");
+
     const currentCart: CartItem[] = savedCart
       ? JSON.parse(savedCart)
       : [];
@@ -66,16 +67,24 @@ export default function Home() {
 
     localStorage.setItem("cartItems", JSON.stringify(currentCart));
     setCartItems(currentCart);
+
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const removeFromCart = (index: number) => {
-    setCartItems((items) => items.filter((_, i) => i !== index));
+    const updatedCart = cartItems.filter((_, i) => i !== index);
+
+    setCartItems(updatedCart);
+    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
   const deliveryCharge =
     cartItems.length === 0
       ? 0
@@ -95,9 +104,9 @@ export default function Home() {
         setSearchQuery("");
       }
     };
-  
+
     document.addEventListener("mousedown", handleClickOutside);
-  
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -122,7 +131,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-neutral-900">
 
-<Navbar />
+      <Navbar />
 
       {/* Hero Section */}
       <section className="relative flex min-h-[600px] items-center bg-neutral-900">

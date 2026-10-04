@@ -82,6 +82,7 @@ export default function CartPage() {
     const updateCart = (items: CartItem[]) => {
         setCartItems(items);
         localStorage.setItem("cartItems", JSON.stringify(items));
+        window.dispatchEvent(new Event("cartUpdated"));
     };
 
     const increaseQuantity = (index: number) => {
