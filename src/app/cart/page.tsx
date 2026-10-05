@@ -14,6 +14,7 @@ type CartItem = {
     size?: string;
     color?: string;
     quantity: number;
+    discount: number;
 };
 
 export default function CartPage() {
@@ -110,10 +111,20 @@ export default function CartPage() {
         0
     );
 
+    const discountAmount = cartItems.reduce(
+        (total, item) =>
+            total + ((item.price * item.discount) / 100) * item.quantity,
+        0
+    );
+
+    const discountedSubtotal = subtotal - discountAmount;
+
     const [delivery, setDelivery] = useState("dhaka");
 
     const deliveryCharge = delivery === "dhaka" ? 80 : 150;
-    const total = subtotal + (cartItems.length > 0 ? deliveryCharge : 0);
+
+    const total =
+        discountedSubtotal + (cartItems.length > 0 ? deliveryCharge : 0);
 
     if (!loaded) {
         return <div className="p-10 text-center">Loading cart...</div>;
@@ -201,9 +212,30 @@ export default function CartPage() {
                                             </div>
                                         </div>
 
-                                        <p className="whitespace-nowrap font-medium">
-                                            ৳{item.price * item.quantity}
-                                        </p>
+                                        <div className="whitespace-nowrap text-right">
+                                            {item.discount > 0 ? (
+                                                <>
+                                                    <p className="text-sm text-gray-400 line-through">
+                                                        ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                                                    </p>
+
+                                                    <p className="font-medium">
+                                                        ৳{(
+                                                            (item.price - (item.price * item.discount) / 100) *
+                                                            item.quantity
+                                                        ).toLocaleString("en-BD")}
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-gray-500">
+                                                        {item.discount}% OFF
+                                                    </p>
+                                                </>
+                                            ) : (
+                                                <p className="font-medium">
+                                                    ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -213,7 +245,21 @@ export default function CartPage() {
 
                                 <div className="mb-4 flex justify-between">
                                     <span>Subtotal</span>
-                                    <span>৳{subtotal}</span>
+                                    <span>৳{subtotal.toLocaleString("en-BD")}</span>
+                                </div>
+
+                                {discountAmount > 0 && (
+                                    <div className="mb-4 flex justify-between text-green-700">
+                                        <span>Discount</span>
+                                        <span>
+                                            -৳{discountAmount.toLocaleString("en-BD")}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <div className="mb-4 flex justify-between">
+                                    <span>After Discount</span>
+                                    <span>৳{discountedSubtotal.toLocaleString("en-BD")}</span>
                                 </div>
 
                                 <div className="mb-4">

@@ -13,6 +13,7 @@ type CartItem = {
   size?: string;
   color?: string;
   quantity: number;
+  discount: number;
 };
 
 export default function CheckoutPage() {
@@ -46,6 +47,14 @@ export default function CheckoutPage() {
     0
   );
 
+  const discountAmount = cartItems.reduce(
+    (sum, item) =>
+      sum + ((item.price * item.discount) / 100) * item.quantity,
+    0
+  );
+
+  const discountedSubtotal = subtotal - discountAmount;
+
   const deliveryCharge =
     cartItems.length === 0
       ? 0
@@ -53,7 +62,7 @@ export default function CheckoutPage() {
         ? 80
         : 150;
 
-  const total = subtotal + deliveryCharge;
+  const total = discountedSubtotal + deliveryCharge;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -88,19 +97,20 @@ export default function CheckoutPage() {
         name: form.name,
         phone: form.phone,
         email: form.email,
-    },
+      },
 
       shipping: {
         area: form.cityDistrict,
         address: form.address,
         alternativePhone: form.alternativePhone,
         note: form.deliveryNote,
-    },
+      },
 
       items: cartItems.map((item) => ({
         id: item.id,
         name: item.name,
         price: item.price,
+        discount: item.discount,
         quantity: item.quantity,
         size: item.size || "",
         color: item.color || "",
@@ -109,7 +119,7 @@ export default function CheckoutPage() {
 
       subtotal,
       deliveryCharge,
-      discount: 0,
+      discount: discountAmount,
       total,
 
       paymentMethod: paymentName,
@@ -452,23 +462,100 @@ export default function CheckoutPage() {
                         </p>
                       </div>
 
-                      <span className="whitespace-nowrap">
-                        ৳
-                        {(
-                          item.price * item.quantity
-                        ).toLocaleString("en-BD")}
-                      </span>
+                      <div className="whitespace-nowrap text-right">
+                        {item.discount > 0 ? (
+                          <>
+                            <p className="text-xs text-neutral-400 line-through">
+                              ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                            </p>
+
+                            <p className="font-medium">
+                              ৳
+                              {(
+                                (item.price - (item.price * item.discount) / 100) *
+                                item.quantity
+                              ).toLocaleString("en-BD")}
+                            </p>
+
+                            <p className="mt-1 text-xs text-green-600">
+                              {item.discount}% OFF
+                            </p>
+                          </>
+                        ) : (
+                          <p>
+                            ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
 
                 <div className="border-t pt-4">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal</span>
+                  <div className="border-t pt-4">
 
-                    <span>
-                      ৳{subtotal.toLocaleString("en-BD")}
-                    </span>
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal</span>
+                      <span>
+                        ৳{subtotal.toLocaleString("en-BD")}
+                      </span>
+                    </div>
+
+                    {discountAmount > 0 && (
+                      <div className="mt-3 flex justify-between text-sm text-green-600">
+                        <span>Product Discount</span>
+                        <span>
+                          -৳{discountAmount.toLocaleString("en-BD")}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="mt-3 flex justify-between text-sm">
+                      <span>After Discount</span>
+                      <span>
+                        ৳{discountedSubtotal.toLocaleString("en-BD")}
+                      </span>
+                    </div>
+
+                    {/* COUPON */}
+                    <div className="mt-5">
+                      <label className="mb-2 block text-sm font-medium">
+                        Coupon Code
+                      </label>
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={coupon}
+                          onChange={(e) => setCoupon(e.target.value)}
+                          placeholder="Enter coupon code"
+                          className="min-w-0 flex-1 border border-neutral-300 px-3 py-3 text-sm outline-none focus:border-black"
+                        />
+
+                        <button
+                          type="button"
+                          className="border border-black px-4 py-3 text-xs font-semibold tracking-wide transition hover:bg-black hover:text-white"
+                        >
+                          APPLY
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex justify-between text-sm">
+                      <span>Delivery Charge</span>
+                      <span>
+                        ৳{deliveryCharge.toLocaleString("en-BD")}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 flex justify-between border-t pt-4 font-semibold">
+                      <span>Total</span>
+
+                      <span>
+                        ৳{total.toLocaleString("en-BD")}
+                      </span>
+                    </div>
+
                   </div>
 
                   {/* COUPON */}

@@ -8,6 +8,7 @@ type OrderItem = {
     id: string;
     name: string;
     price: number;
+    discount: number;
     quantity: number;
     size: string;
     color: string;
@@ -21,7 +22,8 @@ type Order = {
         name: string;
         phone: string;
         email: string;
-    },
+    };
+
     shipping: {
         area: string;
         address: string;
@@ -101,14 +103,13 @@ export default function MyOrdersPage() {
                                         </p>
 
                                         <p className="mt-1 text-xs text-neutral-500">
-                                            {new Date(order.createdAt).toLocaleDateString(
-                                                "en-BD",
-                                                {
-                                                    day: "numeric",
-                                                    month: "long",
-                                                    year: "numeric",
-                                                }
-                                            )}
+                                            {new Date(
+                                                order.createdAt
+                                            ).toLocaleDateString("en-BD", {
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                            })}
                                         </p>
                                     </div>
 
@@ -156,20 +157,59 @@ export default function MyOrdersPage() {
                                                             `Color: ${item.color}`}
                                                     </p>
                                                 )}
+
+                                                {item.discount > 0 && (
+                                                    <p className="mt-1 text-xs text-green-600">
+                                                        {item.discount}% OFF
+                                                    </p>
+                                                )}
                                             </div>
 
-                                            <p className="text-sm">
-                                                ৳
-                                                {(
-                                                    item.price * item.quantity
-                                                ).toLocaleString("en-BD")}
-                                            </p>
+                                            <div className="whitespace-nowrap text-right">
+                                                {item.discount > 0 ? (
+                                                    <>
+                                                        <p className="text-xs text-neutral-400 line-through">
+                                                            ৳
+                                                            {(
+                                                                item.price *
+                                                                item.quantity
+                                                            ).toLocaleString(
+                                                                "en-BD"
+                                                            )}
+                                                        </p>
+
+                                                        <p className="text-sm font-medium">
+                                                            ৳
+                                                            {(
+                                                                (item.price -
+                                                                    (item.price *
+                                                                        item.discount) /
+                                                                        100) *
+                                                                item.quantity
+                                                            ).toLocaleString(
+                                                                "en-BD"
+                                                            )}
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-sm">
+                                                        ৳
+                                                        {(
+                                                            item.price *
+                                                            item.quantity
+                                                        ).toLocaleString(
+                                                            "en-BD"
+                                                        )}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
 
                                 {/* ORDER TOTAL */}
                                 <div className="mt-6 border-t border-neutral-200 pt-5">
+                                    {/* PAYMENT METHOD */}
                                     <div className="flex justify-between text-sm">
                                         <span className="text-neutral-500">
                                             Payment Method
@@ -180,6 +220,52 @@ export default function MyOrdersPage() {
                                         </span>
                                     </div>
 
+                                    {/* SUBTOTAL */}
+                                    <div className="mt-3 flex justify-between text-sm">
+                                        <span className="text-neutral-500">
+                                            Subtotal
+                                        </span>
+
+                                        <span>
+                                            ৳
+                                            {order.subtotal.toLocaleString(
+                                                "en-BD"
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    {/* DISCOUNT */}
+                                    {order.discount > 0 && (
+                                        <div className="mt-3 flex justify-between text-sm text-green-600">
+                                            <span>
+                                                Product Discount
+                                            </span>
+
+                                            <span>
+                                                -৳
+                                                {order.discount.toLocaleString(
+                                                    "en-BD"
+                                                )}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* AFTER DISCOUNT */}
+                                    <div className="mt-3 flex justify-between text-sm">
+                                        <span className="text-neutral-500">
+                                            After Discount
+                                        </span>
+
+                                        <span>
+                                            ৳
+                                            {(
+                                                order.subtotal -
+                                                order.discount
+                                            ).toLocaleString("en-BD")}
+                                        </span>
+                                    </div>
+
+                                    {/* DELIVERY */}
                                     <div className="mt-3 flex justify-between text-sm">
                                         <span className="text-neutral-500">
                                             Delivery Charge
@@ -193,24 +279,26 @@ export default function MyOrdersPage() {
                                         </span>
                                     </div>
 
+                                    {/* TOTAL */}
                                     <div className="mt-4 flex justify-between border-t pt-4 font-semibold">
                                         <span>Total</span>
 
                                         <span>
-                                            ৳{order.total.toLocaleString("en-BD")}
+                                            ৳
+                                            {order.total.toLocaleString(
+                                                "en-BD"
+                                            )}
                                         </span>
                                     </div>
                                 </div>
 
-
-                                {/* CUSTOMER INFORMATION(customer) */}
+                                {/* CUSTOMER INFORMATION */}
                                 <div className="mt-6 border-t border-neutral-200 pt-5">
-                                    <p className="text-sm font-medium font-semibold">
+                                    <p className="text-sm font-semibold">
                                         Customer Information
                                     </p>
 
                                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
-
                                         {/* CUSTOMER NAME */}
                                         <div>
                                             <p className="text-xs text-neutral-500">
@@ -251,20 +339,20 @@ export default function MyOrdersPage() {
                                             </p>
 
                                             <p className="mt-1 text-sm">
-                                                {order.shipping.alternativePhone || "—"}
+                                                {order.shipping
+                                                    .alternativePhone || "—"}
                                             </p>
                                         </div>
-
                                     </div>
                                 </div>
+
                                 {/* DELIVERY INFORMATION */}
                                 <div className="mt-6 border-t border-neutral-200 pt-5">
-                                    <p className="text-sm font-medium font-semibold">
+                                    <p className="text-sm font-semibold">
                                         Delivery Information
                                     </p>
 
                                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
-
                                         {/* FULL ADDRESS */}
                                         <div>
                                             <p className="text-xs text-neutral-500">
@@ -297,7 +385,6 @@ export default function MyOrdersPage() {
                                                 {order.shipping.note || "—"}
                                             </p>
                                         </div>
-
                                     </div>
                                 </div>
                             </section>

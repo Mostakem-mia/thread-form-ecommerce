@@ -130,12 +130,24 @@ export default function ProductDetails() {
             <div className="mx-auto max-w-7xl px-6 py-12">
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
                     {/* Product Image */}
-                    <div className="bg-gray-100">
+                    <div className="relative bg-gray-100">
                         <img
                             src={product.image}
                             alt={product.name}
                             className="h-[500px] w-full object-cover md:h-[650px]"
                         />
+
+                        {product.isNew && (
+                            <span className="absolute left-4 top-4 bg-white px-4 py-2 text-[10px] tracking-[0.2em]">
+                                NEW
+                            </span>
+                        )}
+
+                        {product.discount > 0 && (
+                            <span className="absolute right-4 top-4 bg-black px-4 py-2 text-[10px] tracking-[0.2em] text-white">
+                                {product.discount}% OFF
+                            </span>
+                        )}
                     </div>
 
                     {/* Product Information */}
@@ -144,13 +156,29 @@ export default function ProductDetails() {
                             {product.category}
                         </p>
 
-                        <h1 className="mb-4 text-3xl font-light md:text-4xl">
-                            {product.name}
-                        </h1>
 
-                        <p className="mb-6 text-xl font-medium">
-                            ৳{product.price.toLocaleString("en-BD")}
-                        </p>
+
+                        {/* Product Price */}
+                        <div className="mb-6 flex items-center gap-3">
+                            {product.discount > 0 ? (
+                                <>
+                                    <span className="text-lg text-gray-400 line-through">
+                                        ৳{product.price.toLocaleString("en-BD")}
+                                    </span>
+
+                                    <span className="text-xl font-medium">
+                                        ৳{(
+                                            product.price -
+                                            (product.price * product.discount) / 100
+                                        ).toLocaleString("en-BD")}
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-xl font-medium">
+                                    ৳{product.price.toLocaleString("en-BD")}
+                                </span>
+                            )}
+                        </div>
 
                         <p className="mb-8 leading-7 text-gray-600">
                             {product.description}

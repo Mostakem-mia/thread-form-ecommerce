@@ -22,6 +22,7 @@ type Order = {
         id: string;
         name: string;
         price: number;
+        discount: number;
         quantity: number;
         size: string;
         color: string;
@@ -234,20 +235,56 @@ export default function OrderSuccessPage() {
 
                                         {(item.size || item.color) && (
                                             <p className="mt-1 text-xs text-neutral-500">
-                                                {item.size && `Size: ${item.size}`}
-                                                {item.size && item.color && " · "}
-                                                {item.color && `Color: ${item.color}`}
+                                                {item.size &&
+                                                    `Size: ${item.size}`}
+                                                {item.size &&
+                                                    item.color &&
+                                                    " · "}
+                                                {item.color &&
+                                                    `Color: ${item.color}`}
+                                            </p>
+                                        )}
+
+                                        {item.discount > 0 && (
+                                            <p className="mt-1 text-xs text-green-600">
+                                                {item.discount}% OFF
                                             </p>
                                         )}
                                     </div>
                                 </div>
 
-                                <p className="text-sm">
-                                    ৳
-                                    {(
-                                        item.price * item.quantity
-                                    ).toLocaleString("en-BD")}
-                                </p>
+                                <div className="whitespace-nowrap text-right">
+                                    {item.discount > 0 ? (
+                                        <>
+                                            <p className="text-xs text-neutral-400 line-through">
+                                                ৳
+                                                {(
+                                                    item.price *
+                                                    item.quantity
+                                                ).toLocaleString("en-BD")}
+                                            </p>
+
+                                            <p className="text-sm font-medium">
+                                                ৳
+                                                {(
+                                                    (item.price -
+                                                        (item.price *
+                                                            item.discount) /
+                                                            100) *
+                                                    item.quantity
+                                                ).toLocaleString("en-BD")}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <p className="text-sm">
+                                            ৳
+                                            {(
+                                                item.price *
+                                                item.quantity
+                                            ).toLocaleString("en-BD")}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -256,6 +293,8 @@ export default function OrderSuccessPage() {
                 {/* PRICE SUMMARY */}
                 <section className="mt-6 bg-white p-6 shadow-sm">
                     <div className="space-y-3 text-sm">
+
+                        {/* SUBTOTAL */}
                         <div className="flex justify-between">
                             <span>Subtotal</span>
 
@@ -264,14 +303,43 @@ export default function OrderSuccessPage() {
                             </span>
                         </div>
 
+                        {/* DISCOUNT */}
+                        {order.discount > 0 && (
+                            <div className="flex justify-between text-green-600">
+                                <span>Product Discount</span>
+
+                                <span>
+                                    -৳
+                                    {order.discount.toLocaleString("en-BD")}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* AFTER DISCOUNT */}
+                        <div className="flex justify-between">
+                            <span>After Discount</span>
+
+                            <span>
+                                ৳
+                                {(
+                                    order.subtotal - order.discount
+                                ).toLocaleString("en-BD")}
+                            </span>
+                        </div>
+
+                        {/* DELIVERY */}
                         <div className="flex justify-between">
                             <span>Delivery Charge</span>
 
                             <span>
-                                ৳{order.deliveryCharge.toLocaleString("en-BD")}
+                                ৳
+                                {order.deliveryCharge.toLocaleString(
+                                    "en-BD"
+                                )}
                             </span>
                         </div>
 
+                        {/* TOTAL */}
                         <div className="flex justify-between border-t pt-4 text-base font-semibold">
                             <span>Total</span>
 

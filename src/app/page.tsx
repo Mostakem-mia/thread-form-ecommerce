@@ -23,8 +23,8 @@ export default function Home() {
 
 
 
-  const featuredProducts = products.filter(
-    (product) => product.featured
+  const newArrivals = products.filter(
+    (product) => product.isNew
   );
 
   const searchResults = products.filter((product) => {
@@ -247,7 +247,7 @@ export default function Home() {
 
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {featuredProducts.map((product) => (
+            {newArrivals.map((product) => (
               <article key={product.name} className="group">
                 <Link href={`/product/${product.id}`}>
                   <div className="relative aspect-[3/4] overflow-hidden bg-neutral-200 cursor-pointer">
@@ -257,12 +257,21 @@ export default function Home() {
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
 
-                    <span className="absolute right-3 top-3 bg-white px-3 py-1 text-[10px] tracking-widest">
-                      NEW
-                    </span>
-                    <span className="absolute left-3 top-3 bg-white px-3 py-1 text-[10px] tracking-widest">
-                      20%
-                    </span>
+                    <div className="absolute left-3 right-3 top-3 flex items-start justify-between">
+                      {product.isNew ? (
+                        <span className="bg-white px-3 py-1 text-[10px] tracking-widest">
+                          NEW
+                        </span>
+                      ) : (
+                        <span></span>
+                      )}
+
+                      {product.discount > 0 && (
+                        <span className="bg-black px-3 py-1 text-[10px] tracking-widest text-white">
+                          {product.discount}% OFF
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </Link>
 
@@ -277,9 +286,26 @@ export default function Home() {
                     </h3>
                   </Link>
 
-                  <p className="mt-2 text-sm">
-                    ৳{product.price.toLocaleString("en-BD")}
-                  </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    {product.discount > 0 ? (
+                      <>
+                        <span className="text-sm text-neutral-400 line-through">
+                          ৳{product.price.toLocaleString("en-BD")}
+                        </span>
+
+                        <span className="text-sm font-medium">
+                          ৳{(
+                            product.price -
+                            (product.price * product.discount) / 100
+                          ).toLocaleString("en-BD")}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm">
+                        ৳{product.price.toLocaleString("en-BD")}
+                      </span>
+                    )}
+                  </div>
 
                   <Link
                     href={`/product/${product.id}`}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { products } from "../../data/products";
 import Navbar from "../../components/navbar";
+import ProductCard from "../../components/product-card";
 
 export default function ShopPage() {
     return (
@@ -57,54 +58,12 @@ export default function ShopPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-
-                    {products.map((product) => (
-
-                        <div key={product.id} className="group">
-
-                            {/* Product Image */}
-                            <Link href={`/product/${product.id}`}>
-                                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                    />
-
-                                </div>
-                            </Link>
-
-                            {/* Product Info */}
-                            <div className="pt-4">
-
-                                <p className="mb-1 text-[10px] tracking-[0.2em] text-black/40">
-                                    {product.category}
-                                </p>
-
-                                <Link href={`/product/${product.id}`}>
-                                    <h2 className="text-sm font-medium hover:opacity-60">
-                                        {product.name}
-                                    </h2>
-                                </Link>
-
-                                <p className="mt-2 text-sm">
-                                    ৳{product.price.toLocaleString("en-BD")}
-                                </p>
-
-                                <Link
-                                    href={`/product/${product.id}`}
-                                    className="mt-4 inline-block text-xs font-medium tracking-[0.15em] underline underline-offset-4 hover:opacity-60"
-                                >
-                                    VIEW PRODUCT
-                                </Link>
-
-                            </div>
-
-                        </div>
-
+                {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                        />
                     ))}
-
                 </div>
             </section>
         </main>
