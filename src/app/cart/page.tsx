@@ -2,37 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navbar from "../../components/navbar";
 import { products } from "../../data/products";
+import { calculateSubtotal, calculateDiscount, calculateDiscountedSubtotal, getDeliveryCharge, calculateTotal, getItemSubtotal, getItemTotal, getItemFinalPrice, } from "../../lib/pricing";
+import { useCart } from "../../context/cart-context";
 
-type CartItem = {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    image: string;
-    size?: string;
-    color?: string;
-    quantity: number;
-    discount: number;
-};
 
 export default function CartPage() {
-    const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    const [loaded, setLoaded] = useState(false);
     const [relatedStart, setRelatedStart] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const [itemsPerView, setItemsPerView] = useState(4);
 
-    useEffect(() => {
-        const savedCart = localStorage.getItem("cartItems");
 
-        if (savedCart) {
-            setCartItems(JSON.parse(savedCart));
-        }
-
-        setLoaded(true);
-    }, []);
+    const {
+        cartItems,
+        loaded,
+        increaseQuantity,
+        decreaseQuantity,
+        removeItem,
+        deliveryArea,
+        setDeliveryArea,
+    } = useCart();
 
     const cartCategories = [...new Set(
         cartItems.map((item) => item.category)
@@ -80,51 +69,15 @@ export default function CartPage() {
     }, [relatedProducts.length, itemsPerView]);
 
 
-    const updateCart = (items: CartItem[]) => {
-        setCartItems(items);
-        localStorage.setItem("cartItems", JSON.stringify(items));
-        window.dispatchEvent(new Event("cartUpdated"));
-    };
+    const subtotal = calculateSubtotal(cartItems);
 
-    const increaseQuantity = (index: number) => {
-        const updated = [...cartItems];
-        updated[index].quantity += 1;
-        updateCart(updated);
-    };
+    const discountAmount = calculateDiscount(cartItems);
 
-    const decreaseQuantity = (index: number) => {
-        const updated = [...cartItems];
+    const discountedSubtotal = calculateDiscountedSubtotal(cartItems);
 
-        if (updated[index].quantity > 1) {
-            updated[index].quantity -= 1;
-            updateCart(updated);
-        }
-    };
+    const deliveryCharge = getDeliveryCharge(deliveryArea, cartItems.length > 0);
 
-    const removeItem = (index: number) => {
-        const updated = cartItems.filter((_, i) => i !== index);
-        updateCart(updated);
-    };
-
-    const subtotal = cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-    );
-
-    const discountAmount = cartItems.reduce(
-        (total, item) =>
-            total + ((item.price * item.discount) / 100) * item.quantity,
-        0
-    );
-
-    const discountedSubtotal = subtotal - discountAmount;
-
-    const [delivery, setDelivery] = useState("dhaka");
-
-    const deliveryCharge = delivery === "dhaka" ? 80 : 150;
-
-    const total =
-        discountedSubtotal + (cartItems.length > 0 ? deliveryCharge : 0);
+    const total = calculateTotal(cartItems, deliveryArea);
 
     if (!loaded) {
         return <div className="p-10 text-center">Loading cart...</div>;
@@ -132,7 +85,6 @@ export default function CartPage() {
 
     return (
         <>
-            <Navbar />
 
             <main className="min-h-screen bg-white px-5 py-12 text-black md:px-12">
                 <div className="mx-auto max-w-6xl">
@@ -216,14 +168,11 @@ export default function CartPage() {
                                             {item.discount > 0 ? (
                                                 <>
                                                     <p className="text-sm text-gray-400 line-through">
-                                                        ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                                                        ৳{getItemSubtotal(item).toLocaleString("en-BD")}
                                                     </p>
 
                                                     <p className="font-medium">
-                                                        ৳{(
-                                                            (item.price - (item.price * item.discount) / 100) *
-                                                            item.quantity
-                                                        ).toLocaleString("en-BD")}
+                                                        ৳{getItemTotal(item).toLocaleString("en-BD")}
                                                     </p>
 
                                                     <p className="mt-1 text-xs text-gray-500">
@@ -232,7 +181,7 @@ export default function CartPage() {
                                                 </>
                                             ) : (
                                                 <p className="font-medium">
-                                                    ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                                                    ৳{getItemSubtotal(item).toLocaleString("en-BD")}
                                                 </p>
                                             )}
                                         </div>
@@ -267,13 +216,23 @@ export default function CartPage() {
                                         Delivery Location
                                     </label>
 
+
                                     <select
-                                        value={delivery}
-                                        onChange={(e) => setDelivery(e.target.value)}
+                                        value={deliveryArea}
+                                        onChange={(e) => {
+                                            setDeliveryArea(
+                                                e.target.value as "inside" | "outside"
+                                            );
+                                        }}
                                         className="w-full border p-3"
                                     >
-                                        <option value="dhaka">Inside Dhaka — ৳80</option>
-                                        <option value="outside">Outside Dhaka — ৳150</option>
+                                        <option value="inside">
+                                            Inside Dhaka — ৳80
+                                        </option>
+
+                                        <option value="outside">
+                                            Outside Dhaka — ৳150
+                                        </option>
                                     </select>
                                 </div>
 
@@ -367,23 +326,64 @@ export default function CartPage() {
                                             className="group block"
                                         >
                                             {/* Product Image */}
-                                            <div className="aspect-[3/4] overflow-hidden bg-gray-100">
+                                            {/* Image */}
+                                            <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                                                 <img
                                                     src={item.image}
                                                     alt={item.name}
                                                     className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                                                 />
+
+                                                {/* Badges */}
+                                                <div className="absolute left-3 right-3 top-3 flex items-start justify-between">
+                                                    {item.isNew ? (
+                                                        <span className="bg-white px-3 py-1 text-[10px] tracking-widest">
+                                                            NEW
+                                                        </span>
+                                                    ) : (
+                                                        <span />
+                                                    )}
+
+                                                    {item.discount > 0 && (
+                                                        <span className="bg-black px-3 py-1 text-[10px] tracking-widest text-white">
+                                                            {item.discount}% OFF
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             {/* Product Info */}
                                             <div className="mt-4">
+                                                <p className="mb-1 text-[10px] tracking-[0.2em] text-black/40">
+                                                    {item.category}
+                                                </p>
+
                                                 <h3 className="text-sm font-medium">
                                                     {item.name}
                                                 </h3>
 
-                                                <p className="mt-1 text-sm text-gray-500">
-                                                    ৳{item.price.toLocaleString("en-BD")}
-                                                </p>
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    {item.discount > 0 ? (
+                                                        <>
+                                                            <span className="text-sm text-gray-400 line-through">
+                                                                ৳{item.price.toLocaleString("en-BD")}
+                                                            </span>
+
+                                                            <span className="text-sm font-medium">
+                                                                ৳
+                                                                {getItemFinalPrice({
+                                                                    price: item.price,
+                                                                    quantity: 1,
+                                                                    discount: item.discount,
+                                                                }).toLocaleString("en-BD")}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-sm text-gray-500">
+                                                            ৳{item.price.toLocaleString("en-BD")}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </Link>
                                     </div>

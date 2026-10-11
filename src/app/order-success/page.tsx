@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navbar from "../../components/navbar";
 
 type Order = {
     orderId: string;
@@ -53,8 +52,6 @@ export default function OrderSuccessPage() {
     if (!order) {
         return (
             <main className="min-h-screen bg-neutral-50 text-neutral-900">
-                <Navbar />
-
                 <div className="mx-auto max-w-3xl px-5 py-20 text-center">
                     <h1 className="text-2xl font-medium">
                         No Order Found
@@ -77,8 +74,6 @@ export default function OrderSuccessPage() {
 
     return (
         <main className="min-h-screen bg-neutral-50 text-neutral-900">
-            <Navbar />
-
             <div className="mx-auto max-w-4xl px-5 py-16">
 
                 {/* SUCCESS MESSAGE */}
@@ -86,14 +81,12 @@ export default function OrderSuccessPage() {
                     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-black text-2xl">
                         ✓
                     </div>
-
-                    <h1 className="mt-6 text-3xl font-light md:text-4xl">
+                        <h1 className="mt-6 text-3xl font-light md:text-4xl">
                         Order Confirmed
-                    </h1>
-
-                    <p className="mt-3 text-sm text-neutral-500">
+                        </h1>
+                        <p className="mt-3 text-sm text-neutral-500">
                         Thank you for your order, {order.customer.name}.
-                    </p>
+                        </p>
 
                     <p className="mt-2 text-sm">
                         Order ID:{" "}

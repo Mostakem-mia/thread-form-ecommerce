@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { products } from "../data/products";
-import { menCategories, womenCategories } from "../data/categories";
+import { categories } from "../data/categories";
+import { searchProducts } from "../lib/search";
+import { useCart } from "../context/cart-context";
 
 
 export default function Navbar() {
     const pathname = usePathname();
+    const { cartCount } = useCart();
     const [hash, setHash] = useState("");
-    const [cartCount, setCartCount] = useState<number | null>(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [menMenuOpen, setMenMenuOpen] = useState(false);
@@ -21,25 +23,16 @@ export default function Navbar() {
     const menNewArrivals = products.filter(
         (product) =>
             product.gender === "MEN" &&
-            product.featured
+            product.isNew
     );
 
     const womenNewArrivals = products.filter(
         (product) =>
             product.gender === "WOMEN" &&
-            product.featured
+            product.isNew
     );
 
-    const searchResults = products.filter((product) => {
-        const query = searchQuery.toLowerCase().trim();
-        if (!query) return [];
-        return (
-            product.name.toLowerCase().includes(query) ||
-            product.category.toLowerCase().includes(query)
-        );
-    });
-
-
+    const searchResults = searchProducts(products, searchQuery);
 
     useEffect(() => {
         const updateHash = () => {
@@ -73,35 +66,7 @@ export default function Navbar() {
         };
     }, []);
 
-    useEffect(() => {
-        const updateCartCount = () => {
-            const savedCart = localStorage.getItem("cartItems");
 
-            if (savedCart) {
-                const cart = JSON.parse(savedCart);
-
-                const count = cart.reduce(
-                    (total: number, item: { quantity: number }) =>
-                        total + item.quantity,
-                    0
-                );
-
-                setCartCount(count);
-            } else {
-                setCartCount(0);
-            }
-        };
-
-        updateCartCount();
-
-        window.addEventListener("storage", updateCartCount);
-        window.addEventListener("cartUpdated", updateCartCount);
-
-        return () => {
-            window.removeEventListener("storage", updateCartCount);
-            window.removeEventListener("cartUpdated", updateCartCount);
-        };
-    }, []);
 
     return (
         <>
@@ -165,7 +130,7 @@ export default function Navbar() {
                                         </p>
 
                                         <div className="space-y-3">
-                                            {menCategories.TOPWEAR.map((category) => (
+                                            {categories.MEN.TOPWEAR.map((category) => (
                                                 <Link
                                                     key={category}
                                                     href={`/men?category=${encodeURIComponent(category)}`}
@@ -184,7 +149,7 @@ export default function Navbar() {
                                         </p>
 
                                         <div className="space-y-3">
-                                            {menCategories.BOTTOMWEAR.map((category) => (
+                                            {categories.MEN.BOTTOMWEAR.map((category) => (
                                                 <Link
                                                     key={category}
                                                     href={`/men?category=${encodeURIComponent(category)}`}
@@ -204,7 +169,7 @@ export default function Navbar() {
                                         </p>
 
                                         <div className="space-y-3">
-                                            {menCategories.ACCESSORIES.map((category) => (
+                                            {categories.MEN.ACCESSORIES.map((category) => (
                                                 <Link
                                                     key={category}
                                                     href={`/men?category=${encodeURIComponent(category)}`}
@@ -286,67 +251,119 @@ export default function Navbar() {
                                     }`}
                             >
                                 {/* Main Content */}
-                                <div className="grid grid-cols-[190px_1fr] gap-0 px-8 py-7">
+                                <div className="grid grid-cols-5 gap-0 px-8 py-7">
 
-                                    {/* WESTERN & ETHNIC */}
+                                    {/* TOPWEAR */}
                                     <div>
-                                        <p className="mb-4 text-xs font-medium tracking-[0.2em] text-red-500">
-                                            WESTERN & ETHNIC
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            TOPWEAR
                                         </p>
 
                                         <div className="space-y-3">
-                                            {womenCategories["WESTERN & ETHNIC"].map(
-                                                (category) => (
-                                                    <Link
-                                                        key={category}
-                                                        href={`/women?category=${encodeURIComponent(category)}`}
-                                                        onClick={() =>
-                                                            setWomenMenuOpen(false)
-                                                        }
-                                                        className="block text-sm hover:text-black/50"
-                                                    >
-                                                        {category}
-                                                    </Link>
-                                                )
-                                            )}
+                                            {categories.WOMEN.TOPWEAR.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/women?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setWomenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* BOTTOMWEAR */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            BOTTOMWEAR
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {categories.WOMEN.BOTTOMWEAR.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/women?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setWomenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* ETHNIC */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            ETHNIC
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {categories.WOMEN.ETHNIC.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/women?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setWomenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* SETS */}
+                                    <div>
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
+                                            SETS
+                                        </p>
+
+                                        <div className="space-y-3">
+                                            {categories.WOMEN.SETS.map((category) => (
+                                                <Link
+                                                    key={category}
+                                                    href={`/women?category=${encodeURIComponent(category)}`}
+                                                    onClick={() => setWomenMenuOpen(false)}
+                                                    className="block text-sm hover:text-black/50"
+                                                >
+                                                    {category}
+                                                </Link>
+                                            ))}
                                         </div>
                                     </div>
 
                                     {/* NEW ARRIVALS */}
                                     <div className="border-l border-neutral-200 pl-7">
-                                        <p className="mb-4 text-xs font-medium tracking-[0.2em] text-red-500">
+                                        <p className="mb-4 text-xs font-medium text-red-500 tracking-[0.2em] text-black/80">
                                             NEW ARRIVALS
                                         </p>
 
-                                        <div className="grid grid-cols-3 gap-x-5 gap-y-5">
-                                            {womenNewArrivals.slice(0, 6).map(
-                                                (product) => (
-                                                    <Link
-                                                        key={product.id}
-                                                        href={`/product/${product.id}`}
-                                                        onClick={() =>
-                                                            setWomenMenuOpen(false)
-                                                        }
-                                                        className="group/product"
-                                                    >
-                                                        <div className="aspect-[4/5] overflow-hidden bg-gray-100">
-                                                            <img
-                                                                src={product.image}
-                                                                alt={product.name}
-                                                                className="h-full w-full object-cover transition duration-500 group-hover/product:scale-105"
-                                                            />
-                                                        </div>
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                                            {womenNewArrivals.slice(0, 4).map((product) => (
+                                                <Link
+                                                    key={product.id}
+                                                    href={`/product/${product.id}`}
+                                                    onClick={() => setWomenMenuOpen(false)}
+                                                    className="group/product"
+                                                >
+                                                    <div className="aspect-[4/5] overflow-hidden bg-gray-100">
+                                                        <img
+                                                            src={product.image}
+                                                            alt={product.name}
+                                                            className="h-full w-full object-cover transition duration-500 group-hover/product:scale-105"
+                                                        />
+                                                    </div>
 
-                                                        <p className="mt-2 truncate text-xs text-black/80">
-                                                            {product.name}
-                                                        </p>
+                                                    <p className="mt-2 truncate text-xs text-black/80">
+                                                        {product.name}
+                                                    </p>
 
-                                                        <p className="mt-1 text-xs text-black/50">
-                                                            ৳{product.price.toLocaleString()}
-                                                        </p>
-                                                    </Link>
-                                                )
-                                            )}
+                                                    <p className="mt-1 text-xs text-black/50">
+                                                        ৳{product.price.toLocaleString()}
+                                                    </p>
+                                                </Link>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
@@ -461,7 +478,7 @@ export default function Navbar() {
 
                         {/* Cart */}
                         <Link href="/cart">
-                            Bag {cartCount !== null ? `(${cartCount})` : ""}
+                            Bag ({cartCount})
                         </Link>
                     </div>
                 </nav>

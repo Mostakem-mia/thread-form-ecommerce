@@ -1,47 +1,55 @@
-export const menCategories = {
-    TOPWEAR: [
-        "Half Sleeve T-shirt",
-        "Full Sleeve T-shirt",
-        "Polo T-shirt",
-        "Shirt",
-        "Panjabi",
-        "Hoodie",
-        "Jacket",
-        "Sweatshirt",
-    ],
+export const categories = {
+    MEN: {
+        TOPWEAR: [
+            "Half Sleeve T-Shirt",
+            "Full Sleeve T-Shirt",
+            "Polo T-Shirt",
+            "Shirt",
+            "Panjabi",
+            "Hoodie",
+            "Jacket",
+            "Sweatshirt",
+        ],
 
-    BOTTOMWEAR: [
-        "Comfy Trouser",
-        "Sports Trouser",
-        "Jeans",
-        "Joggers",
-        "Cargo Pants",
-        "Chino Pants",
-        "Shorts",
-        "Pajama",
-    ],
+        BOTTOMWEAR: [
+            "Comfy Trouser",
+            "Jeans",
+            "Joggers",
+            "Cargo Pants",
+            "Chino Pants",
+            "Shorts",
+            "Pajama",
+        ],
 
-    ACCESSORIES: [
-        "Face Mask",
-        "Underwear",
-        "Socks",
-        "Wallet",
-        "Belt",
-        "Cap",
-    ],
-};
+        ACCESSORIES: [
+            "Wallet",
+            "Belt",
+            "Cap",
+            "Socks",
+        ],
+    },
 
-export const womenCategories = {
-    "WESTERN & ETHNIC": [
-        "Kurti Tunic And Tops",
-        "T-Shirt",
-        "Kurti",
-        "Comfy Trouser",
-        "2pc Salwar Kameez",
-        "3pc Salwar Kameez",
-        "Co-ords",
-        "Pajamas",
-        "Palazzo",
-        "Leggings",
-    ],
+    WOMEN: {
+        TOPWEAR: [
+            "T-Shirt",
+            "Kurti",
+            "Tunic",
+        ],
+
+        BOTTOMWEAR: [
+            "Comfy Trouser",
+            "Palazzo",
+            "Leggings",
+            "Pajama",
+        ],
+
+        ETHNIC: [
+            "2pc Salwar Kameez",
+            "3pc Salwar Kameez",
+        ],
+
+        SETS: [
+            "Co-ords",
+        ],
+    },
 };

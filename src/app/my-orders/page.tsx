@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Navbar from "../../components/navbar";
 
 type OrderItem = {
     id: string;
@@ -56,8 +55,6 @@ export default function MyOrdersPage() {
 
     return (
         <main className="min-h-screen bg-neutral-50 text-neutral-900">
-            <Navbar />
-
             <div className="mx-auto max-w-5xl px-5 py-12">
                 <h1 className="text-3xl font-light md:text-4xl">
                     My Orders

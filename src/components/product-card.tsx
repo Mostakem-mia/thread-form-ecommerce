@@ -1,24 +1,18 @@
 import Link from "next/link";
+import { Product } from "../types/product";
+import { getItemFinalPrice } from "../lib/pricing";
 
-type Product = {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
-    image: string;
-    isNew: boolean;
-    discount: number;
-};
 
 type ProductCardProps = {
     product: Product;
 };
 
 export default function ProductCard({ product }: ProductCardProps) {
-    const discountedPrice =
-        product.discount > 0
-            ? product.price - (product.price * product.discount) / 100
-            : product.price;
+    const discountedPrice = getItemFinalPrice({
+        price: product.price,
+        quantity: 1,
+        discount: product.discount,
+    });
 
     return (
         <div className="group">

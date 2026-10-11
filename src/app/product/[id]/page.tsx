@@ -4,12 +4,13 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { products } from "../../../data/products";
-import Navbar from "../../../components/navbar";
+import { useCart } from "../../../context/cart-context";
 
 
 export default function ProductDetails() {
     const params = useParams();
     const id = params.id as string;
+    const { addToCart } = useCart();
 
     const product = products.find((item) => item.id === id);
 
@@ -84,49 +85,24 @@ export default function ProductDetails() {
         }
     }, [relatedStart, relatedProducts.length]);
 
-
     const handleAddToCart = () => {
         if (!selectedSize || !selectedColor) {
             alert("Please select a size and color.");
             return;
         }
-
-        const savedCart = localStorage.getItem("cartItems");
-        const cartItems = savedCart ? JSON.parse(savedCart) : [];
-
-        const existingIndex = cartItems.findIndex(
-            (item: {
-                id: string;
-                size?: string;
-                color?: string;
-            }) =>
-                item.id === product.id &&
-                item.size === selectedSize &&
-                item.color === selectedColor
+    
+        addToCart(
+            product,
+            selectedSize,
+            selectedColor,
+            quantity
         );
-
-        if (existingIndex >= 0) {
-            cartItems[existingIndex].quantity += quantity;
-        } else {
-            cartItems.push({
-                ...product,
-                size: selectedSize,
-                color: selectedColor,
-                quantity,
-            });
-        }
-
-        localStorage.setItem("cartItems", JSON.stringify(cartItems));
-
-        window.dispatchEvent(new Event("cartUpdated"));
-
+    
         setAdded(true);
     };
 
     return (
         <main className="min-h-screen bg-white text-gray-900">
-            <Navbar />
-
             <div className="mx-auto max-w-7xl px-6 py-12">
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
                     {/* Product Image */}
@@ -134,9 +110,8 @@ export default function ProductDetails() {
                         <img
                             src={product.image}
                             alt={product.name}
-                            className="h-[500px] w-full object-cover md:h-[650px]"
-                        />
-
+                            className="h-[500px] w-full object-cover md:h-[650px]"/>
+                            
                         {product.isNew && (
                             <span className="absolute left-4 top-4 bg-white px-4 py-2 text-[10px] tracking-[0.2em]">
                                 NEW
@@ -339,17 +314,56 @@ export default function ProductDetails() {
                                                 alt={item.name}
                                                 className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                                             />
+
+                                            {/* Badges */}
+                                            <div className="absolute left-3 right-3 top-3 flex items-start justify-between">
+                                                {item.isNew ? (
+                                                    <span className="bg-white px-3 py-1 text-[10px] tracking-widest">
+                                                        NEW
+                                                    </span>
+                                                ) : (
+                                                    <span />
+                                                )}
+
+                                                {item.discount > 0 && (
+                                                    <span className="bg-black px-3 py-1 text-[10px] tracking-widest text-white">
+                                                        {item.discount}% OFF
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Product Info */}
                                         <div className="mt-4">
+                                            <p className="mb-1 text-[10px] tracking-[0.2em] text-black/40">
+                                                {item.category}
+                                            </p>
+
                                             <h3 className="text-sm font-medium">
                                                 {item.name}
                                             </h3>
 
-                                            <p className="mt-1 text-sm text-gray-500">
-                                                ৳{item.price.toLocaleString("en-BD")}
-                                            </p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                {item.discount > 0 ? (
+                                                    <>
+                                                        <span className="text-sm text-gray-400 line-through">
+                                                            ৳{item.price.toLocaleString("en-BD")}
+                                                        </span>
+
+                                                        <span className="text-sm font-medium">
+                                                            ৳
+                                                            {(
+                                                                item.price -
+                                                                (item.price * item.discount) / 100
+                                                            ).toLocaleString("en-BD")}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-sm text-gray-500">
+                                                        ৳{item.price.toLocaleString("en-BD")}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </Link>
                                 </div>

@@ -3,19 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { products } from "../data/products";
-import Navbar from "../components/navbar";
-
+import { searchProducts } from "../lib/search";
+import { useCart } from "../context/cart-context";
+import { calculateSubtotal, getDeliveryCharge, getItemSubtotal, getItemFinalPrice, } from "../lib/pricing";
 
 
 export default function Home() {
-  type CartItem = (typeof products)[number] & {
-    size?: string;
-    color?: string;
-    quantity: number;
-  };
+  const { cartItems, cartCount, removeItem } = useCart();
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartLoaded, setCartLoaded] = useState(false);
   const [deliveryArea, setDeliveryArea] = useState("inside");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -23,115 +18,30 @@ export default function Home() {
 
 
 
+
   const newArrivals = products.filter(
     (product) => product.isNew
   );
 
-  const searchResults = products.filter((product) => {
-    const query = searchQuery.toLowerCase().trim();
+  const searchResults = searchProducts(products, searchQuery);
 
-    if (!query) return [];
 
-    return (
-      product.name.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query)
-    );
-  });
   const closeSearch = () => {
     setSearchOpen(false);
     setSearchQuery("");
   };
 
+  const total = calculateSubtotal(cartItems);
 
-  const cartCount = cartItems.length;
-
-  const addToCart = (product: (typeof products)[number]) => {
-    const savedCart = localStorage.getItem("cartItems");
-
-    const currentCart: CartItem[] = savedCart
-      ? JSON.parse(savedCart)
-      : [];
-
-    const existingIndex = currentCart.findIndex(
-      (item) => item.id === product.id && !item.size && !item.color
-    );
-
-    if (existingIndex >= 0) {
-      currentCart[existingIndex].quantity += 1;
-    } else {
-      currentCart.push({
-        ...product,
-        quantity: 1,
-      });
-    }
-
-    localStorage.setItem("cartItems", JSON.stringify(currentCart));
-    setCartItems(currentCart);
-
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
-
-  const removeFromCart = (index: number) => {
-    const updatedCart = cartItems.filter((_, i) => i !== index);
-
-    setCartItems(updatedCart);
-    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
-
-    window.dispatchEvent(new Event("cartUpdated"));
-  };
-
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
+  const deliveryCharge = getDeliveryCharge(
+    deliveryArea as "inside" | "outside",
+    cartItems.length > 0
   );
-
-  const deliveryCharge =
-    cartItems.length === 0
-      ? 0
-      : deliveryArea === "inside"
-        ? 80
-        : 150;
 
   const grandTotal = total + deliveryCharge;
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setSearchOpen(false);
-        setSearchQuery("");
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cartItems");
-
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
-
-    setCartLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (cartLoaded) {
-      localStorage.setItem("cartItems", JSON.stringify(cartItems));
-    }
-  }, [cartItems, cartLoaded]);
-
   return (
     <main className="min-h-screen bg-white text-neutral-900">
-
-      <Navbar />
 
       {/* Hero Section */}
       <section className="relative flex min-h-[600px] items-center bg-neutral-900">
@@ -294,10 +204,11 @@ export default function Home() {
                         </span>
 
                         <span className="text-sm font-medium">
-                          ৳{(
-                            product.price -
-                            (product.price * product.discount) / 100
-                          ).toLocaleString("en-BD")}
+                          ৳{getItemFinalPrice({
+                            price: product.price,
+                            quantity: 1,
+                            discount: product.discount,
+                          }).toLocaleString("en-BD")}
                         </span>
                       </>
                     ) : (
@@ -342,12 +253,12 @@ export default function Home() {
             </a>
           </div>
         ) : (
-          <div className="grid gap-10 md:grid-cols-[1fr_320px]">
-            <div className="space-y-5">
+          <div className="grid gap-10  ">
+            <div className="space-y-5 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
               {cartItems.map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
-                  className="flex gap-5 border-b border-neutral-200 pb-5"
+                  className="flex gap-5 border-b border-neutral-200 pb-5 "
                 >
                   <img
                     src={item.image}
@@ -356,7 +267,7 @@ export default function Home() {
                   />
 
                   <div className="flex flex-1 flex-col justify-between">
-                    <div>
+                    <div >
                       <p className="text-xs text-neutral-500">
                         {item.category}
                       </p>
@@ -374,70 +285,28 @@ export default function Home() {
                         ৳{item.price.toLocaleString("en-BD")} × {item.quantity}
                       </p>
 
-                      <p className="mt-1 text-sm font-medium">
-                        Subtotal: ৳{(item.price * item.quantity).toLocaleString("en-BD")}
+                      <p className="mt-1 text-sm font-medium ">
+                        Subtotal: ৳{getItemSubtotal(item).toLocaleString("en-BD")}
                       </p>
                     </div>
 
                     <button
-                      onClick={() => removeFromCart(index)}
+                      onClick={() => removeItem(index)}
                       className="w-fit text-xs text-red-600 underline"
                     >
                       REMOVE
                     </button>
+
                   </div>
+
                 </div>
+
               ))}
+
             </div>
-
-            <div className="h-fit border border-neutral-200 p-6">
-              <h3 className="text-lg font-medium">Order Summary</h3>
-              <div className="mt-6">
-                <label htmlFor="deliveryArea" className="mb-2 block text-sm font-medium">
-                  Delivery Area
-                </label>
-
-                <select
-                  id="deliveryArea"
-                  value={deliveryArea}
-                  onChange={(e) => setDeliveryArea(e.target.value)}
-                  className="w-full border border-neutral-300 bg-white p-3 text-sm"
-                >
-                  <option value="inside">Inside Dhaka — ৳80</option>
-                  <option value="outside">Outside Dhaka — ৳150</option>
-                </select>
-              </div>
-
-              <div className="mt-6 space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>৳{total.toLocaleString("en-BD")}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span>Delivery Charge</span>
-                  <span>৳{deliveryCharge}</span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex justify-between border-t border-neutral-200 pt-4 text-sm">
-                <span>Total</span>
-                <span className="font-semibold">
-                  ৳{grandTotal.toLocaleString("en-BD")}
-                </span>
-              </div>
-
-              <a
-                href="/checkout"
-                className="mt-7 block w-full bg-black py-4 text-center text-xs font-semibold tracking-widest text-white hover:bg-neutral-700">
-                PROCEED TO CHECKOUT
-              </a>
-
-              <p className="mt-4 text-center text-xs text-neutral-500">
-                Delivery charges calculated at checkout.
-              </p>
+              <a href="/cart"
+              className="mt-7 block w-1/2 bg-black py-4 text-center text-xs font-semibold tracking-widest text-white hover:bg-neutral-700">VIEW BAG</a>
             </div>
-          </div>
         )}
       </section>
       {/* About */}
@@ -473,7 +342,6 @@ export default function Home() {
           </button>
         </form>
       </section>
-
     </main>
   );
 }

@@ -1,4 +1,7 @@
-export const products = [
+import { Product } from "../types/product";
+
+
+export const products: Product[] = [
     // =========================
     // MEN - TOPWEAR
     // =========================
