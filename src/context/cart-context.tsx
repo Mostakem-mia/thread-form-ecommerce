@@ -5,9 +5,11 @@ import {
     useContext,
     useEffect,
     useState,
+    useRef,
     type ReactNode,
 } from "react";
 import { Product } from "../types/product";
+import { useAuth } from "./auth-context";
 
 export type CartItem = Product & {
     size?: string;
@@ -36,39 +38,99 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+    const { user, isAuthenticated } = useAuth();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [loaded, setLoaded] = useState(false);
     const [deliveryArea, setDeliveryArea] = useState<"inside" | "outside">("inside");
+    // ইউজার অনুযায়ী ডাইনামিক স্টোরেজ কী (লগইন না থাকলে guest কী)
+    const cartStorageKey = isAuthenticated && user?.email
+        ? `app_cart_${user.email.toLowerCase()}`
+        : "app_cart_guest";
 
+    const deliveryStorageKey = isAuthenticated && user?.email
+        ? `app_delivery_${user.email.toLowerCase()}`
+        : "app_delivery_guest";
+
+    const previousStorageKey = useRef(cartStorageKey);
+    const previousDeliveryStorageKey = useRef(deliveryStorageKey);
+
+    // যখনই ইউজার লগইন, লগআউট বা অন্য একাউন্টে সুইচ করবে, সাথে সাথে সেই একাউন্টের কার্ট লোড হবে
     useEffect(() => {
-        const savedCart = localStorage.getItem("cartItems");
+        setLoaded(false);
 
-        if (savedCart) {
-            try {
-                setCartItems(JSON.parse(savedCart));
-            } catch {
-                setCartItems([]);
+        try {
+            const savedCart = localStorage.getItem(cartStorageKey);
+            const accountCart: CartItem[] = savedCart ? JSON.parse(savedCart) : [];
+            let nextCart = Array.isArray(accountCart) ? accountCart : [];
+
+            // Preserve a guest cart after login by merging it into the signed-in account cart.
+            if (isAuthenticated && user?.email) {
+                const guestRaw = localStorage.getItem("app_cart_guest");
+                const guestCart: CartItem[] = guestRaw ? JSON.parse(guestRaw) : [];
+                if (Array.isArray(guestCart) && guestCart.length > 0) {
+                    const merged = [...nextCart];
+                    guestCart.forEach((guestItem) => {
+                        const index = merged.findIndex((item) =>
+                            item.id === guestItem.id &&
+                            item.size === guestItem.size &&
+                            item.color === guestItem.color
+                        );
+                        if (index >= 0) {
+                            merged[index] = {
+                                ...merged[index],
+                                quantity: merged[index].quantity + guestItem.quantity,
+                            };
+                        } else {
+                            merged.push(guestItem);
+                        }
+                    });
+                    nextCart = merged;
+                    localStorage.setItem(cartStorageKey, JSON.stringify(nextCart));
+                    localStorage.removeItem("app_cart_guest");
+                }
             }
+
+            setCartItems(nextCart);
+        } catch {
+            setCartItems([]);
         }
-        const savedDelivery = localStorage.getItem("deliveryArea");
 
-        if (savedDelivery === "inside" || savedDelivery === "outside") {
-            setDeliveryArea(savedDelivery);}
+        try {
+            const savedDelivery = localStorage.getItem(deliveryStorageKey);
+            if (savedDelivery === "inside" || savedDelivery === "outside") {
+                setDeliveryArea(savedDelivery);
+            } else {
+                setDeliveryArea("inside");
+            }
+        } catch {
+            setDeliveryArea("inside");
+        }
+
         setLoaded(true);
-    }, []);
+    }, [cartStorageKey, deliveryStorageKey]);
 
+    // কার্ট আইটেম পরিবর্তন হলে ওই ইউজারের নির্দিষ্ট কি-তে সেভ হবে
     useEffect(() => {
         if (!loaded) return;
+        if (previousStorageKey.current !== cartStorageKey) {
+            previousStorageKey.current = cartStorageKey;
+            return;
+        }
 
-        localStorage.setItem("cartItems", JSON.stringify(cartItems));
+        localStorage.setItem(cartStorageKey, JSON.stringify(cartItems));
         window.dispatchEvent(new Event("cartUpdated"));
-    }, [cartItems, loaded]);
+    }, [cartItems, cartStorageKey, loaded]);
 
+    // ডেলিভারি এরিয়া পরিবর্তন হলে ওই ইউজারের কি-তে সেভ হবে
     useEffect(() => {
         if (!loaded) return;
-    
-        localStorage.setItem("deliveryArea", deliveryArea);
-    }, [deliveryArea, loaded]);
+        if (previousDeliveryStorageKey.current !== deliveryStorageKey) {
+            previousDeliveryStorageKey.current = deliveryStorageKey;
+            return;
+        }
+
+        localStorage.setItem(deliveryStorageKey, deliveryArea);
+    }, [deliveryArea, deliveryStorageKey, loaded]);
 
     const addToCart = (
         product: Product,
@@ -141,6 +203,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const clearCart = () => {
         setCartItems([]);
+        localStorage.removeItem(cartStorageKey);
     };
 
     const cartCount = cartItems.reduce(
@@ -172,9 +235,7 @@ export function useCart() {
     const context = useContext(CartContext);
 
     if (!context) {
-        throw new Error(
-            "useCart must be used inside a CartProvider"
-        );
+        throw new Error("useCart must be used inside a CartProvider");
     }
 
     return context;

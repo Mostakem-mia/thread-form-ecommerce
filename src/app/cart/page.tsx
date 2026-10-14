@@ -86,9 +86,11 @@ export default function CartPage() {
     return (
         <>
 
-            <main className="min-h-screen bg-white px-5 py-12 text-black md:px-12">
+            <main className="min-h-screen bg-[#faf9f6] px-5 py-12 text-neutral-900 md:px-12">
                 <div className="mx-auto max-w-6xl">
-
+                    <div className="mb-5 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.24em] text-neutral-500">
+                        <Link href="/" className="transition hover:text-black">Home</Link><span>/</span><Link href="/shop"className="transition hover:text-black">Shop</Link><span>/</span><span className="text-neutral-900">Cart</span>
+                    </div>
                     <h1 className="mb-10 mt-5 text-3xl font-semibold">
                         Your Shopping Bag
                     </h1>
@@ -107,8 +109,10 @@ export default function CartPage() {
                             </Link>
                         </div>
                     ) : (
-                        <div className="grid gap-12 md:grid-cols-[1fr_350px]">
-                            <div>
+
+                        <div className="grid items-start gap-8 md:grid-cols-[1fr_350px] lg:gap-12">
+
+                            <div className="bg-white p-6 shadow-sm md:p-8">
                                 {cartItems.map((item, index) => (
                                     <div
                                         key={`${item.id}-${item.size}-${item.color}-${index}`}
@@ -188,77 +192,78 @@ export default function CartPage() {
                                     </div>
                                 ))}
                             </div>
+                            <div className="self-start">
+                                <aside className="h-fit bg-white p-6 shadow-sm">
+                                    <h2 className="mb-6 text-xl font-semibold">Order Summary</h2>
 
-                            <aside className="h-fit border p-6">
-                                <h2 className="mb-6 text-xl font-semibold">Order Summary</h2>
-
-                                <div className="mb-4 flex justify-between">
-                                    <span>Subtotal</span>
-                                    <span>৳{subtotal.toLocaleString("en-BD")}</span>
-                                </div>
-
-                                {discountAmount > 0 && (
-                                    <div className="mb-4 flex justify-between text-green-700">
-                                        <span>Discount</span>
-                                        <span>
-                                            -৳{discountAmount.toLocaleString("en-BD")}
-                                        </span>
+                                    <div className="mb-4 flex justify-between">
+                                        <span>Subtotal</span>
+                                        <span>৳{subtotal.toLocaleString("en-BD")}</span>
                                     </div>
-                                )}
 
-                                <div className="mb-4 flex justify-between">
-                                    <span>After Discount</span>
-                                    <span>৳{discountedSubtotal.toLocaleString("en-BD")}</span>
-                                </div>
+                                    {discountAmount > 0 && (
+                                        <div className="mb-4 flex justify-between text-green-700">
+                                            <span>Discount</span>
+                                            <span>
+                                                -৳{discountAmount.toLocaleString("en-BD")}
+                                            </span>
+                                        </div>
+                                    )}
 
-                                <div className="mb-4">
-                                    <label className="mb-2 block text-sm font-medium">
-                                        Delivery Location
-                                    </label>
+                                    <div className="mb-4 flex justify-between">
+                                        <span>After Discount</span>
+                                        <span>৳{discountedSubtotal.toLocaleString("en-BD")}</span>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="mb-2 block text-sm font-medium">
+                                            Delivery Location
+                                        </label>
 
 
-                                    <select
-                                        value={deliveryArea}
-                                        onChange={(e) => {
-                                            setDeliveryArea(
-                                                e.target.value as "inside" | "outside"
-                                            );
-                                        }}
-                                        className="w-full border p-3"
+                                        <select
+                                            value={deliveryArea}
+                                            onChange={(e) => {
+                                                setDeliveryArea(
+                                                    e.target.value as "inside" | "outside"
+                                                );
+                                            }}
+                                            className="w-full border p-3"
+                                        >
+                                            <option value="inside">
+                                                Inside Dhaka — ৳80
+                                            </option>
+
+                                            <option value="outside">
+                                                Outside Dhaka — ৳150
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div className="mb-4 flex justify-between">
+                                        <span>Delivery Charge</span>
+                                        <span>৳{deliveryCharge}</span>
+                                    </div>
+
+                                    <div className="mb-6 flex justify-between border-t pt-4 text-lg font-semibold">
+                                        <span>Total</span>
+                                        <span>৳{total}</span>
+                                    </div>
+
+                                    <Link
+                                        href="/checkout"
+                                        className="block w-full bg-black py-4 text-center text-white hover:bg-gray-800"
                                     >
-                                        <option value="inside">
-                                            Inside Dhaka — ৳80
-                                        </option>
-
-                                        <option value="outside">
-                                            Outside Dhaka — ৳150
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div className="mb-4 flex justify-between">
-                                    <span>Delivery Charge</span>
-                                    <span>৳{deliveryCharge}</span>
-                                </div>
-
-                                <div className="mb-6 flex justify-between border-t pt-4 text-lg font-semibold">
-                                    <span>Total</span>
-                                    <span>৳{total}</span>
-                                </div>
-
-                                <Link
-                                    href="/checkout"
-                                    className="block w-full bg-black py-4 text-center text-white hover:bg-gray-800"
-                                >
-                                    Proceed to Checkout
-                                </Link>
-                                <Link
-                                    href="/shop"
-                                    className="mt-3 block w-full border border-black py-4 text-center text-black hover:bg-black hover:text-white"
-                                >
-                                    Continue Shopping
-                                </Link>
-                            </aside>
+                                        Proceed to Checkout
+                                    </Link>
+                                    <Link
+                                        href="/shop"
+                                        className="mt-3 block w-full border border-black py-4 text-center text-black hover:bg-black hover:text-white"
+                                    >
+                                        Continue Shopping
+                                    </Link>
+                                </aside>
+                            </div>
                         </div>
                     )}
                 </div>
